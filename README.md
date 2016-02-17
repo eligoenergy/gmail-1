@@ -1,14 +1,22 @@
 <img alt="Gmail for Ruby" src="https://cloud.githubusercontent.com/assets/27655/5792399/fd5d076e-9f59-11e4-826c-22c311e38356.png">
 
-[![Build Status](https://travis-ci.org/gmailgem/gmail.png)](https://travis-ci.org/gmailgem/gmail)
-[![Code Climate](https://codeclimate.com/github/gmailgem/gmail.png)](https://codeclimate.com/github/gmailgem/gmail)
+[![Build Status](https://travis-ci.org/gmailgem/gmail.svg)](https://travis-ci.org/gmailgem/gmail)
+[![Code Climate](https://codeclimate.com/github/gmailgem/gmail.svg)](https://codeclimate.com/github/gmailgem/gmail)
+[![Gem Version](https://badge.fury.io/rb/gmail.svg)](https://rubygems.org/gems/gmail)
+[![Coverage Status](https://coveralls.io/repos/gmailgem/gmail/badge.svg?branch=master&service=github&nocache=true)](https://coveralls.io/github/gmailgem/gmail?branch=master)
 
 A Rubyesque interface to Google's Gmail, with all the tools you'll need. Search, 
 read and send multipart emails, archive, mark as read/unread, delete emails, 
 and manage labels.
 
-It's based on Daniel Parker's ruby-gmail gem. This version has more friendly
-API, is well tested, better documented and have many other improvements.
+It's based on [Daniel Parker's ruby-gmail gem](https://github.com/dcparker/ruby-gmail). This version has a more friendly
+API, is well tested, better documented and has many other improvements.
+
+## Reporting Issues
+
+This gem uses the [Mail gem](https://github.com/mikel/mail) for messages, attachments, etc. Unless your issue is related to Gmail integration specifically, please refer to [RFC-5322 (email specification)](https://tools.ietf.org/html/rfc5322) and the [Mail gem](https://github.com/mikel/mail).
+
+We welcome Pull Requests which include tests.
 
 ## Installation
 
@@ -101,6 +109,10 @@ gmail = Gmail.connect(:xoauth, "email@domain.com",
   :consumer_secret => 'CONSUMER_SECRET'
 )
 ```
+
+```ruby
+gmail = Gmail.connect(:xoauth2, 'email@domain.com', 'ACCESS_TOKEN')
+```
     
 For more information check out the [gmail_xoauth](https://github.com/nfo/gmail_xoauth)
 gem from Nicolas Fouché.
@@ -149,7 +161,7 @@ The [gm option](https://developers.google.com/gmail/imap_extensions?csw=1#extens
 gmail.inbox.emails(gm: '"testing"')
 ```
 
-You can use also one of aliases:
+You can also use one of aliases:
 
 ```ruby
 gmail.inbox.find(...)
@@ -184,7 +196,7 @@ gmail.inbox.find(:from => "x-fiance@gmail.com").each do |email|
 end
 ```
 
-Save all attachments in the "Faxes" label to a local folder (uses functionality from `Mail` gem):
+Save all attachments from the "Faxes" label to a local folder (uses functionality from `Mail` gem):
 
 ```ruby
 folder = Dir.pwd # for example
@@ -194,8 +206,8 @@ gmail.mailbox("Faxes").emails.each do |email|
   end
 end
 ```
-     
-You can use also `#label` method instead of `#mailbox`: 
+
+You can also use `#label` method instead of `#mailbox`:
 
 ```ruby
 gmail.label("Faxes").emails {|email| ... }
@@ -205,7 +217,8 @@ Save just the first attachment from the newest unread email (assuming pdf):
 
 ```ruby
 email = gmail.inbox.find(:unread).first
-email.attachments[0].save_to_file("/path/to/location")
+attachment = email.attachments[0]
+File.write(File.join(folder_path, attachment.filename), attachment.body.decoded)
 ```
 
 Add a label to a message:
@@ -214,7 +227,7 @@ Add a label to a message:
 email.label("Faxes")
 ```
 
-Example above will raise error when you don't have the `Faxes` label. You can 
+Example above will raise error when you don't have the `Faxes` label. You can
 avoid this using:
 
 ```ruby
@@ -223,12 +236,12 @@ email.label!("Faxes") # The `Faxes` label will be automatically created now
 
 You can also move message to a label/mailbox:
 
-```ruby 
+```ruby
 email.move_to("Faxes")
 email.move_to!("NewLabel")
 ```
 
-There is also few shortcuts to mark messages quickly:
+There are also few shortcuts to mark messages quickly:
 
 ```ruby
 email.read!
@@ -249,7 +262,7 @@ gmail.labels.all
 
 Create new label:
 
-```ruby  
+```ruby
 gmail.labels.new("Urgent")
 gmail.labels.add("AnotherOne")
 ```
@@ -316,16 +329,6 @@ If you are having trouble connecting to Gmail:
 * In [Gmail Security Settings](https://www.google.com/settings/security), enable access for less secure applications.
 * Read [this support answer re: suspicious activity](https://support.google.com/mail/answer/78754) and try things like entering a captcha.
 
-## Note on Patches/Pull Requests
- 
-* Fork the project.
-* Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
-
 ## Authors
 
 #### Core Team
@@ -335,8 +338,9 @@ This project follows on Open Governance model. The Core Team is responsible for 
 * Jeff Carbonella - [@jcarbo](https://github.com/jcarbo)
 * Johnny Shields - [@johnnyshields](https://github.com/johnnyshields)
 * Alexandre Loureiro Solleiro - [@webcracy](https://github.com/webcracy)
-* Justin Grevitch - [@jgrevich](https://github.com/jgrevich)
+* Justin Grevich - [@jgrevich](https://github.com/jgrevich)
 * [@bootstraponline](https://github.com/bootstraponline)
+* Nathan Herald - [@myobie](https://github.com/myobie)
 
 #### Legacy Contributors
 
@@ -346,8 +350,8 @@ This project follows on Open Governance model. The Core Team is responsible for 
 
 ## Copyright
 
-* Copyright (c) 2015 GmailGem team
+* Copyright (c) 2015-2016 GmailGem team
 * Copyright (c) 2010-2014 Kriss 'nu7hatch' Kowalik
 * Copyright (c) 2009-2010 BehindLogic
 
-See LICENSE for details.
+Licensed under the MIT license. See [LICENSE](https://github.com/gmailgem/gmail/blob/master/LICENSE) for details.

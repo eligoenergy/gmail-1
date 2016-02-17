@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.authors = ["Chris Kowalik"]
   s.email = ["chris@nu7hat.ch"]
   s.homepage = "http://github.com/gmailgem/gmail"
+  s.licenses = ["MIT"]
 
   # runtime dependencies
   s.add_dependency "mail", ">= 2.2.1"
@@ -23,7 +24,7 @@ Gem::Specification.new do |s|
   # development dependencies
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", ">= 3.1"
-  s.add_development_dependency "rubocop"
+  s.add_development_dependency "rubocop", ">= 0.34.2"
   s.add_development_dependency "gem-release"
 
   s.files         = `git ls-files`.split("\n")

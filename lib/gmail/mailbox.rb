@@ -46,9 +46,9 @@ module Gmail
         opts[:gm]         and search.concat ['X-GM-RAW', opts[:gm]]
         opts[:query]      and search.concat opts[:query]
 
-        @gmail.mailbox(name) {
+        @gmail.mailbox(name) do
           @gmail.conn.uid_search(search)
-        }
+        end
       elsif args.first.is_a?(Hash)
         fetch_uids(:all, args.first)
       else
@@ -118,6 +118,46 @@ module Gmail
       @gmail.mailbox(name) { @gmail.conn.expunge }
     end
 
+    def wait(options = {}, &block)
+      loop do
+        wait_once(options, &block)
+      end
+    end
+
+    def wait_once(options = {})
+      options[:idle_timeout] ||= 29 * 60
+
+      response = nil
+      loop do
+        complete_cond = @gmail.conn.new_cond
+        complete_now = false
+
+        @gmail.conn.idle do |resp|
+          if resp.is_a?(Net::IMAP::ContinuationRequest) && resp.data.text == 'idling'
+            Thread.new do
+              @gmail.conn.synchronize do
+                complete_cond.wait(options[:idle_timeout]) unless complete_now
+                @gmail.conn.idle_done
+              end
+            end
+          elsif resp.is_a?(Net::IMAP::UntaggedResponse) && resp.name == 'EXISTS'
+            response = resp
+
+            @gmail.conn.synchronize do
+              complete_now = true
+              complete_cond.signal
+            end
+          end
+        end
+
+        break if response
+      end
+
+      yield response if block_given?
+
+      nil
+    end
+
     def inspect
       "#<Gmail::Mailbox#{'0x%04x' % (object_id << 1)} name=#{name}>"
     end
@@ -126,10 +166,10 @@ module Gmail
       name
     end
 
-    MAILBOX_ALIASES.each_key { |mailbox|
+    MAILBOX_ALIASES.each_key do |mailbox|
       define_method(mailbox) do |*args, &block|
         emails(mailbox, *args, &block)
       end
-    }
+    end
   end # Message
 end # Gmail

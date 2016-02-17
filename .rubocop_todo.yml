@@ -98,20 +98,10 @@ Style/AlignParameters:
 Style/AndOr:
   Enabled: false
 
-# Offense count: 18
-# Cop supports --auto-correct.
-Style/Blocks:
-  Enabled: false
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/BracesAroundHashParameters:
-  Enabled: false
-
-# Offense count: 16
-# Configuration parameters: IndentWhenRelativeTo, SupportedStyles, IndentOneStep.
-Style/CaseIndentation:
   Enabled: false
 
 # Offense count: 2

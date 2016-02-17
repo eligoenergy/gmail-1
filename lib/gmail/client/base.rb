@@ -3,11 +3,11 @@ require 'thread'
 module Gmail
   module Client
     class Base
-      # GMail IMAP defaults
+      # Gmail IMAP defaults
       GMAIL_IMAP_HOST = 'imap.gmail.com'
       GMAIL_IMAP_PORT = 993
 
-      # GMail SMTP defaults
+      # Gmail SMTP defaults
       GMAIL_SMTP_HOST = "smtp.gmail.com"
       GMAIL_SMTP_PORT = 587
 
@@ -24,10 +24,10 @@ module Gmail
       # Connect to gmail service.
       def connect(raise_errors = false)
         @imap = Net::IMAP.new(GMAIL_IMAP_HOST, GMAIL_IMAP_PORT, true, nil, false)
-        GmailImapExtensions.patch_net_imap_response_parser
+        Gmail::ImapExtensions.patch_net_imap_response_parser
         @imap
       rescue SocketError
-        raise_errors and raise ConnectionError, "Couldn't establish connection with GMail IMAP service"
+        raise_errors and raise ConnectionError, "Couldn't establish connection with Gmail IMAP service"
       end
 
       # This version of connect will raise error on failure...
@@ -61,7 +61,7 @@ module Gmail
       end
       alias :signed_in? :logged_in?
 
-      # Logout from GMail service.
+      # Logout from Gmail service.
       def logout
         @imap && logged_in? and @imap.logout
       ensure
@@ -69,12 +69,12 @@ module Gmail
       end
       alias :sign_out :logout
 
-      # Disconnect from GMail service.
+      # Disconnect from Gmail service.
       def disconnect
         @imap && @imap.disconnect
       end
 
-      # Return labels object, which helps you with managing your GMail labels.
+      # Return labels object, which helps you with managing your Gmail labels.
       # See <tt>Gmail::Labels</tt> for details.
       def labels
         @labels ||= Labels.new(conn)
@@ -131,7 +131,7 @@ module Gmail
       #   mail = gmail.compose { ... }
       #   gmail.deliver(mail)
       def deliver(mail = nil, raise_errors = false, &block)
-        mail = compose(mail, &block) if block_given?
+        mail = compose(mail, &block)
         mail.deliver!
       rescue Object => ex
         raise_errors and raise DeliveryError, "Couldn't deliver email: #{ex.to_s}"
@@ -178,7 +178,7 @@ module Gmail
       alias :in_label :mailbox
       alias :label :mailbox
 
-      # Alias for <tt>mailbox("INBOX")</tt>. See <tt>Gmail::Client#mailbox</tt>
+      # Alias for <tt>mailbox("INBOX")</tt>. See <tt>Gmail::Mailbox</tt>
       # for details.
       def inbox
         mailbox("INBOX")
